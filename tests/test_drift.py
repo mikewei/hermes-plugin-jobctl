@@ -1,5 +1,5 @@
-from hermes_task.drift import DesiredState, drift_fields, job_is_paused
-from hermes_task.spec import parse_task_text
+from hermes_job.drift import DesiredState, drift_fields, job_is_paused
+from hermes_job.spec import parse_task_text
 
 
 def sample_job():
@@ -23,6 +23,7 @@ def sample_job():
 def test_sync_no_drift(tmp_path):
     p = tmp_path / "t.md"
     text = """---
+type: hermes-cron
 schedule: "every 24h"
 deliver: local
 suspend: false

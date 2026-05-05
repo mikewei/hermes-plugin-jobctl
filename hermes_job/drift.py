@@ -4,7 +4,7 @@ import json
 from dataclasses import dataclass
 from typing import Any
 
-from hermes_task.spec import TaskSpec
+from hermes_job.spec import TaskSpec
 
 
 def _schedule_display(job: dict[str, Any]) -> str:

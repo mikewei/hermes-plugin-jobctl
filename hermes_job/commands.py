@@ -5,8 +5,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from hermes_task.drift import desired_from_spec, drift_fields, job_is_paused, status_label
-from hermes_task.hermes_runner import (
+from hermes_job.drift import desired_from_spec, drift_fields, job_is_paused, status_label
+from hermes_job.hermes_runner import (
     HermesCliError,
     build_create_args,
     build_edit_args,
@@ -16,9 +16,9 @@ from hermes_task.hermes_runner import (
     check_ok,
     run_cron,
 )
-from hermes_task.profile import CronInvoker, build_cron_context, default_hermes_home, resolve_profile_explicit
-from hermes_task.spec import TaskSpecError, iter_task_markdown_files, parse_task_file
-from hermes_task.state import find_jobs_by_name, load_all_jobs, singleton_job_or_error
+from hermes_job.profile import CronInvoker, build_cron_context, default_hermes_home, resolve_profile_explicit
+from hermes_job.spec import TaskSpecError, iter_task_markdown_files, parse_task_file
+from hermes_job.state import find_jobs_by_name, load_all_jobs, singleton_job_or_error
 
 
 class OpError(Exception):
@@ -33,10 +33,12 @@ def resolve_invoker(
 ) -> tuple[str | None, CronInvoker]:
     p = resolve_profile_explicit(
         profile_opt,
-        __import__("os").environ.get("HERMES_TASK_PROFILE"),
+        __import__("os").environ.get("HERMES_JOB_PROFILE"),
     )
-    hb = hermes_bin or __import__("os").environ.get("HERMES_TASK_HERMES_BIN")
-    return p, build_cron_context(p, hermes_bin=hb)
+    hb = hermes_bin or __import__("os").environ.get("HERMES_JOB_HERMES_BIN")
+    invoker = build_cron_context(p, hermes_bin=hb)
+    print(f"profile: {p or 'default'}", file=sys.stderr)
+    return p, invoker
 
 
 def apply_paths(
@@ -47,12 +49,10 @@ def apply_paths(
     accept_hooks: bool,
     verbose: bool,
 ) -> int:
-    profile, invoker = resolve_invoker(profile_opt, hermes_bin)
+    _, invoker = resolve_invoker(profile_opt, hermes_bin)
     errs: list[str] = []
 
     if verbose:
-        pname = profile or "default"
-        print(f"profile: {pname}", file=sys.stderr)
         print(f"jobs.json: {invoker.jobs_json_path}", file=sys.stderr)
 
     jobs = load_all_jobs(invoker.jobs_json_path)
@@ -100,8 +100,8 @@ def apply_paths(
     return 0
 
 
-def delete_name_or_file(
-    target: Path | None,
+def delete_targets(
+    targets: list[Path],
     name: str | None,
     *,
     profile_opt: str | None,
@@ -109,39 +109,69 @@ def delete_name_or_file(
     accept_hooks: bool,
     verbose: bool,
 ) -> int:
-    if (target is None) == (name is None):
-        raise ValueError("Specify exactly one of -f/--file or --name.")
+    by_paths = len(targets) > 0
+    by_name = name is not None
+    if by_paths and by_name:
+        raise ValueError("Provide either TASK paths or --name, not both.")
+    if not by_paths and not by_name:
+        raise ValueError("Provide at least one TASK path or --name NAME.")
 
     _, invoker = resolve_invoker(profile_opt, hermes_bin)
     if verbose:
         print(f"jobs.json: {invoker.jobs_json_path}", file=sys.stderr)
 
-    jobs = load_all_jobs(invoker.jobs_json_path)
+    if by_name:
+        assert name is not None
+        jobs = load_all_jobs(invoker.jobs_json_path)
+        job, cerr = singleton_job_or_error(jobs, name)
+        if cerr:
+            print(f"error: {cerr}", file=sys.stderr)
+            return 1
+        if job is None:
+            print(f"error: no job named {name!r}", file=sys.stderr)
+            return 1
+        proc = run_cron(invoker, build_remove_args(job["id"]), accept_hooks=accept_hooks)
+        try:
+            check_ok(proc, "hermes cron remove")
+        except HermesCliError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 1
+        print(f"[removed] {name} ({job['id']})")
+        return 0
 
-    effective: str | None = None
-    if target is not None:
-        spec = parse_task_file(target)
-        effective = spec.effective_name
-    else:
-        effective = name
-    assert effective is not None
-
-    job, cerr = singleton_job_or_error(jobs, effective)
-    if cerr:
-        print(f"error: {cerr}", file=sys.stderr)
-        return 1
-    if job is None:
-        print(f"error: no job named {effective!r}", file=sys.stderr)
-        return 1
-
-    proc = run_cron(invoker, build_remove_args(job["id"]), accept_hooks=accept_hooks)
-    try:
-        check_ok(proc, "hermes cron remove")
-    except HermesCliError as e:
-        print(f"error: {e}", file=sys.stderr)
-        return 1
-    print(f"[removed] {effective} ({job['id']})")
-    return 0
+    exit_code = 0
+    for tgt in targets:
+        try:
+            for md in iter_task_markdown_files(tgt):
+                jobs = load_all_jobs(invoker.jobs_json_path)
+                try:
+                    spec = parse_task_file(md)
+                except TaskSpecError as e:
+                    exit_code = 1
+                    print(f"error: {md}: {e}", file=sys.stderr)
+                    continue
+                effective = spec.effective_name
+                job, cerr = singleton_job_or_error(jobs, effective)
+                if cerr:
+                    exit_code = 1
+                    print(f"error: {md}: {cerr}", file=sys.stderr)
+                    continue
+                if job is None:
+                    exit_code = 1
+                    print(f"error: {md}: no job named {effective!r}", file=sys.stderr)
+                    continue
+                proc = run_cron(invoker, build_remove_args(job["id"]), accept_hooks=accept_hooks)
+                try:
+                    check_ok(proc, "hermes cron remove")
+                except HermesCliError as e:
+                    exit_code = 1
+                    print(f"error: {md}: {e}", file=sys.stderr)
+                    continue
+                print(f"[removed] {effective} ({job['id']})")
+        except TaskSpecError as e:
+            exit_code = 1
+            print(f"error: {tgt}: {e}", file=sys.stderr)
+    return exit_code
 
 
 def status_paths(

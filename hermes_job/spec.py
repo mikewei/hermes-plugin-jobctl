@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterator
@@ -12,12 +11,15 @@ class TaskSpecError(ValueError):
     pass
 
 
-_WS_ONLY = re.compile(r"^\s*$", re.MULTILINE)
+# YAML front matter key `type`; values reserved for future task kinds.
+TASK_TYPE_HERMES_CRON = "hermes-cron"
+ALLOWED_TASK_TYPES = frozenset({TASK_TYPE_HERMES_CRON})
 
 
 @dataclass(frozen=True)
 class TaskSpec:
     path: Path
+    task_type: str  # from front matter key `type`
     effective_name: str
     schedule: str
     deliver: str | None
@@ -91,6 +93,18 @@ def parse_task_text(path: Path, content: str) -> TaskSpec:
     if not isinstance(meta, dict):
         raise TaskSpecError("Front matter must be a YAML mapping")
 
+    type_raw = meta.get("type")
+    if type_raw is None or not str(type_raw).strip():
+        raise TaskSpecError(
+            "`type` is required in front matter "
+            f"(known values: {', '.join(sorted(ALLOWED_TASK_TYPES))})"
+        )
+    task_type = str(type_raw).strip()
+    if task_type not in ALLOWED_TASK_TYPES:
+        raise TaskSpecError(
+            f"`type` must be one of: {', '.join(sorted(ALLOWED_TASK_TYPES))} (got {task_type!r})"
+        )
+
     schedule_raw = meta.get("schedule")
     if schedule_raw is None or not str(schedule_raw).strip():
         raise TaskSpecError("`schedule` is required in front matter")
@@ -133,6 +147,7 @@ def parse_task_text(path: Path, content: str) -> TaskSpec:
 
     return TaskSpec(
         path=path,
+        task_type=task_type,
         effective_name=effective_name,
         schedule=schedule,
         deliver=deliver,

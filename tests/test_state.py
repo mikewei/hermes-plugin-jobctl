@@ -1,4 +1,4 @@
-from hermes_task.state import find_jobs_by_name, singleton_job_or_error
+from hermes_job.state import find_jobs_by_name, singleton_job_or_error
 
 
 def test_singleton_ambiguous():

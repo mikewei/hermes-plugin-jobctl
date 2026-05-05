@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from hermes_task.profile import effective_hermes_home, infer_profile_from_cwd
+from hermes_job.profile import effective_hermes_home, infer_profile_from_cwd
 
 
 def test_infer_profile_under_profiles(monkeypatch):

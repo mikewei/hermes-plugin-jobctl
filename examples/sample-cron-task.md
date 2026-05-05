@@ -1,12 +1,13 @@
 ---
+type: hermes-cron
 schedule: "every 24h"
 deliver: local
 suspend: false
 ---
 
-这是一个**示例**定时任务说明（Hermes cron）。你可以复制本文件并按需修改。
+Example scheduled task for Hermes cron. Copy and edit as needed.
 
-- 检查当日待办并输出三段式摘要。
-- 如有阻塞项，单独列一条说明原因。
+- Summarize open todos in three short sections.
+- If anything is blocked, call it out in one line.
 
-（本示例**未**配置 `skills`；若要在任务里加载 skill，请在 front matter 里自行添加 `skills: [your-skill]`。）
+(No `skills` in this sample; add `skills: [your-skill]` in the YAML header if you need them.)
