@@ -4,7 +4,7 @@ import os
 import subprocess
 from typing import Sequence
 
-from hermes_job.profile import CronInvoker
+from .profile import CronInvoker
 
 
 class HermesCliError(RuntimeError):
@@ -38,7 +38,7 @@ def run_cron(
 
 
 def build_create_args(spec) -> list[str]:
-    from hermes_job.spec import TaskSpec
+    from .spec import TaskSpec
 
     if not isinstance(spec, TaskSpec):
         raise TypeError("TaskSpec expected")
@@ -59,7 +59,7 @@ def build_create_args(spec) -> list[str]:
 
 def build_edit_args(job_id: str, spec) -> list[str]:
     """Full replacement edit so spec matches Hermes job (declarative sync)."""
-    from hermes_job.spec import TaskSpec
+    from .spec import TaskSpec
 
     if not isinstance(spec, TaskSpec):
         raise TypeError("TaskSpec expected")

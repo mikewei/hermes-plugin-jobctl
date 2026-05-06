@@ -1,8 +1,8 @@
 from unittest.mock import patch
 
-from hermes_job.hermes_runner import build_create_args, build_edit_args
-from hermes_job.profile import build_cron_context
-from hermes_job.spec import parse_task_text
+from hermes_jobctl.hermes_runner import build_create_args, build_edit_args
+from hermes_jobctl.profile import build_cron_context
+from hermes_jobctl.spec import parse_task_text
 from pathlib import Path
 
 
@@ -12,7 +12,7 @@ def test_build_cron_context_default():
             return "/opt/hermes"
         return None
 
-    with patch("hermes_job.profile.shutil.which", side_effect=fake_which):
+    with patch("hermes_jobctl.profile.shutil.which", side_effect=fake_which):
         ctx = build_cron_context(None, hermes_bin="/opt/hermes")
     assert ctx.argv_prefix == ("/opt/hermes", "cron")
 
@@ -26,7 +26,7 @@ def test_build_cron_context_named_fallback():
             return "/bin/hermes"
         return None
 
-    with patch("hermes_job.profile.shutil.which", side_effect=fake_which):
+    with patch("hermes_jobctl.profile.shutil.which", side_effect=fake_which):
         ctx = build_cron_context("myprofile", hermes_bin="/bin/hermes")
         assert ctx.argv_prefix == ("/bin/hermes", "-p", "myprofile", "cron")
 
@@ -40,7 +40,7 @@ def test_build_cron_context_named_wrapper():
             return "/bin/hermes"
         return None
 
-    with patch("hermes_job.profile.shutil.which", side_effect=fake_which):
+    with patch("hermes_jobctl.profile.shutil.which", side_effect=fake_which):
         ctx = build_cron_context("myprofile", hermes_bin="/bin/hermes")
         assert ctx.argv_prefix == ("myprofile", "cron")
 

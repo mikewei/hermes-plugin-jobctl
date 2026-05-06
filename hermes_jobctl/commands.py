@@ -5,8 +5,8 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from hermes_job.drift import desired_from_spec, drift_fields, job_is_paused, status_label
-from hermes_job.hermes_runner import (
+from .drift import desired_from_spec, drift_fields, job_is_paused, status_label
+from .hermes_runner import (
     HermesCliError,
     build_create_args,
     build_edit_args,
@@ -16,9 +16,9 @@ from hermes_job.hermes_runner import (
     check_ok,
     run_cron,
 )
-from hermes_job.profile import CronInvoker, build_cron_context, default_hermes_home, resolve_profile_explicit
-from hermes_job.spec import TaskSpecError, iter_task_markdown_files, parse_task_file
-from hermes_job.state import find_jobs_by_name, load_all_jobs, singleton_job_or_error
+from .profile import CronInvoker, build_cron_context, default_hermes_home, resolve_profile_explicit
+from .spec import TaskSpecError, iter_task_markdown_files, parse_task_file
+from .state import find_jobs_by_name, load_all_jobs, singleton_job_or_error
 
 
 class OpError(Exception):
@@ -33,9 +33,9 @@ def resolve_invoker(
 ) -> tuple[str | None, CronInvoker]:
     p = resolve_profile_explicit(
         profile_opt,
-        __import__("os").environ.get("HERMES_JOB_PROFILE"),
+        __import__("os").environ.get("HERMES_JOBCTL_PROFILE"),
     )
-    hb = hermes_bin or __import__("os").environ.get("HERMES_JOB_HERMES_BIN")
+    hb = hermes_bin or __import__("os").environ.get("HERMES_JOBCTL_HERMES_BIN")
     invoker = build_cron_context(p, hermes_bin=hb)
     print(f"profile: {p or 'default'}", file=sys.stderr)
     return p, invoker

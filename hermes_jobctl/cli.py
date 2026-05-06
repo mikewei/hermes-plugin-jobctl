@@ -9,9 +9,9 @@ import click
 import typer
 from typer.core import TyperGroup
 
-from hermes_job import __version__
-from hermes_job.commands import apply_paths, delete_targets, get_cmd, status_paths
-from hermes_job.scaffold import run_new
+from . import __version__
+from .commands import apply_paths, delete_targets, get_cmd, status_paths
+from .scaffold import run_new
 
 
 class HermesTaskGroup(TyperGroup):
@@ -73,13 +73,13 @@ def apply(
         ),
     ],
     profile: Optional[str] = typer.Option(None, "--profile", "-p"),
-    hermes_bin: Optional[str] = typer.Option(None, "--hermes-bin", envvar="HERMES_JOB_HERMES_BIN"),
+    hermes_bin: Optional[str] = typer.Option(None, "--hermes-bin", envvar="HERMES_JOBCTL_HERMES_BIN"),
     accept_hooks: bool = typer.Option(False, "--accept-hooks"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ):
     """Create or update Hermes cron jobs from task spec files.
 
-    Front matter keys: see **Spec format** at the end of ``hermes-job --help``.
+    Front matter keys: see **Spec format** at the end of ``hermes-jobctl --help``.
     """
     code = apply_paths(paths, profile_opt=profile, hermes_bin=hermes_bin, accept_hooks=accept_hooks, verbose=verbose)
     raise typer.Exit(code)
@@ -97,7 +97,7 @@ def delete(
     ] = [],
     name: Optional[str] = typer.Option(None, "--name", "-n", help="Effective task / job name."),
     profile: Optional[str] = typer.Option(None, "--profile", "-p"),
-    hermes_bin: Optional[str] = typer.Option(None, "--hermes-bin", envvar="HERMES_JOB_HERMES_BIN"),
+    hermes_bin: Optional[str] = typer.Option(None, "--hermes-bin", envvar="HERMES_JOBCTL_HERMES_BIN"),
     accept_hooks: bool = typer.Option(False, "--accept-hooks"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ):
@@ -128,7 +128,7 @@ def status(
         ),
     ],
     profile: Optional[str] = typer.Option(None, "--profile", "-p"),
-    hermes_bin: Optional[str] = typer.Option(None, "--hermes-bin", envvar="HERMES_JOB_HERMES_BIN"),
+    hermes_bin: Optional[str] = typer.Option(None, "--hermes-bin", envvar="HERMES_JOBCTL_HERMES_BIN"),
     json_out: bool = typer.Option(False, "--json", help="Print JSON rows."),
     show_diff: bool = typer.Option(False, "--show-diff", help="Extra hints when fields drift (use with -v)."),
     strict: bool = typer.Option(
@@ -140,7 +140,7 @@ def status(
 ):
     """Compare task files to jobs.json (sync / pending_apply / missing).
 
-    Front matter keys: see **Spec format** at the end of ``hermes-job --help``.
+    Front matter keys: see **Spec format** at the end of ``hermes-jobctl --help``.
     """
     code = status_paths(
         paths,
@@ -158,7 +158,7 @@ def status(
 def get_jobs(
     name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by job name (exact)."),
     profile: Optional[str] = typer.Option(None, "--profile", "-p"),
-    hermes_bin: Optional[str] = typer.Option(None, "--hermes-bin", envvar="HERMES_JOB_HERMES_BIN"),
+    hermes_bin: Optional[str] = typer.Option(None, "--hermes-bin", envvar="HERMES_JOBCTL_HERMES_BIN"),
     json_out: bool = typer.Option(False, "--json"),
     verbose: bool = typer.Option(False, "--verbose", "-v"),
 ):
@@ -211,7 +211,7 @@ def new(
 
 def main() -> None:
     if len(sys.argv) >= 2 and sys.argv[1] in ("--version", "-V"):
-        print(f"hermes-job {__version__}")
+        print(f"hermes-jobctl {__version__}")
         raise SystemExit(0)
     app()
 

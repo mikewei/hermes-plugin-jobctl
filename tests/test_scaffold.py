@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from hermes_job.scaffold import render_spec_template, run_new, validate_task_stem
-from hermes_job.spec import parse_task_file
+from hermes_jobctl.scaffold import render_spec_template, run_new, validate_task_stem
+from hermes_jobctl.spec import parse_task_file
 
 
 def test_validate_rejects_empty():

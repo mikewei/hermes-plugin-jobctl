@@ -1,11 +1,11 @@
-# hermes-job
+# hermes-jobctl
 
 Declarative Hermes cron jobs from Markdown files: YAML **front matter** for metadata and a Markdown **body** as the Hermes agent prompt—think apply/delete/status for cron specs.
 
 ## Requirements
 
 - Python 3.10+
-- The `hermes` CLI on `PATH`, or override with **`HERMES_JOB_HERMES_BIN`**
+- The `hermes` CLI on `PATH`, or override with **`HERMES_JOBCTL_HERMES_BIN`**
 
 ---
 
@@ -14,7 +14,7 @@ Declarative Hermes cron jobs from Markdown files: YAML **front matter** for meta
 ### From PyPI
 
 ```bash
-pip install hermes-job
+pip install hermes-jobctl
 ```
 
 ### From source
@@ -24,14 +24,14 @@ pip install hermes-job
 From a **checkout** of this repository:
 
 ```bash
-cd /path/to/hermes-job
+cd /path/to/hermes-jobctl
 uv sync
 ```
 
 Run the CLI via the managed environment:
 
 ```bash
-uv run hermes-job --help
+uv run hermes-jobctl --help
 ```
 
 Editable install still bound to your tree:
@@ -49,29 +49,39 @@ pip install .
 pip install -e '.[dev]'   # editable + dev deps
 ```
 
+### Hermes plugin registration
+
+`hermes-jobctl` supports two plugin-loading paths for `hermes jobctl ...`:
+
+1. **Python entry point** (default when installed via `pip` / `uv`)
+   - Declared under `hermes_agent.plugins` as `jobctl = "hermes_jobctl.plugin"`.
+2. **Directory plugin loading**
+   - Copy the `hermes_jobctl/` directory directly into your Hermes `plugins` directory.
+   - The package root exports `register`, so Hermes can register the `jobctl` command tree from the copied directory.
+
 ---
 
 ## Quick Start
 
-After installation, `hermes-job` must be on your `PATH` (or use `uv run hermes-job` from the project directory).
+After installation, `hermes-jobctl` must be on your `PATH` (or use `uv run hermes-jobctl` from the project directory).
 
 ```bash
 # Scaffold a spec next to cwd
-hermes-job new nightly-report --schedule "every 24h" --dir .
+hermes-jobctl new nightly-report --schedule "every 24h" --dir .
 
 # Edit nightly-report.md: set YAML header and write the Markdown prompt body
 
 # Push spec to Hermes cron
-hermes-job apply ./nightly-report.md
+hermes-jobctl apply ./nightly-report.md
 
 # See sync state vs jobs.json
-hermes-job status ./nightly-report.md
+hermes-jobctl status ./nightly-report.md
 ```
 
 Notes:
 
 - You can pass **multiple** paths; each argument may be a `.md` file or a directory (every `*.md` in that directory, non-recursive).
-- See **`Spec format`** at the bottom of **`hermes-job --help`** for the full field list.
+- See **`Spec format`** at the bottom of **`hermes-jobctl --help`** for the full field list.
 
 ---
 
@@ -130,11 +140,11 @@ Example scheduled task for Hermes cron. Copy and edit as needed.
 Common flags: `-p/--profile`, `--hermes-bin`, `-v/--verbose`; `apply` / `delete` also support `--accept-hooks`.
 
 ```bash
-hermes-job apply ./examples/sample-cron-task.md
-hermes-job status ./examples/
-hermes-job delete ./examples/sample-cron-task.md
-hermes-job delete --name my-job
-hermes-job new my-task --schedule "every 24h"
+hermes-jobctl apply ./examples/sample-cron-task.md
+hermes-jobctl status ./examples/
+hermes-jobctl delete ./examples/sample-cron-task.md
+hermes-jobctl delete --name my-job
+hermes-jobctl new my-task --schedule "every 24h"
 ```
 
 ---
@@ -144,7 +154,7 @@ hermes-job new my-task --schedule "every 24h"
 Resolution order for which Hermes home / `jobs.json` is used:
 
 1. CLI `--profile` (`default` → unnamed profile)
-2. Environment variable **`HERMES_JOB_PROFILE`**
+2. Environment variable **`HERMES_JOBCTL_PROFILE`**
 3. If `cwd` is under `~/.hermes/profiles/<name>/…`, infer `<name>`
 
 Each run prints a short line on stderr, e.g. `profile: default`.
@@ -160,4 +170,4 @@ uv sync --extra dev && uv run pytest
 
 ---
 
-*Distribution name **`hermes-job`** in `pyproject.toml` `[project]`; console entry point **`hermes-job`**.*
+*Distribution name **`hermes-jobctl`** in `pyproject.toml` `[project]`; console entry point **`hermes-jobctl`**.*

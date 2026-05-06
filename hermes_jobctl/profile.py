@@ -31,7 +31,7 @@ def resolve_profile_explicit(
     """
     Resolution order:
     1. Typer/global --profile flag (non-empty string; 'default' => None).
-    2. HERMES_JOB_PROFILE env.
+    2. HERMES_JOBCTL_PROFILE env.
     3. infer_profile_from_cwd().
     """
     if profile_flag is not None:

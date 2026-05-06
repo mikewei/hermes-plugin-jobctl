@@ -1,4 +1,4 @@
-from hermes_job.cli import main
+from hermes_jobctl.cli import main
 
 if __name__ == "__main__":
     main()

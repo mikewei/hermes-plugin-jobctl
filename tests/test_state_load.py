@@ -2,7 +2,7 @@ import json
 
 from pathlib import Path
 
-from hermes_job.state import load_all_jobs
+from hermes_jobctl.state import load_all_jobs
 
 
 def test_load_jobs_empty_dict(tmp_path: Path):

@@ -1,6 +1,6 @@
 import pytest
 
-from hermes_job.spec import TaskSpecError, parse_task_file, parse_task_text
+from hermes_jobctl.spec import TaskSpecError, parse_task_file, parse_task_text
 
 
 def test_example_spec_parses(example_spec_path):

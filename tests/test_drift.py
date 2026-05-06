@@ -1,5 +1,5 @@
-from hermes_job.drift import DesiredState, drift_fields, job_is_paused
-from hermes_job.spec import parse_task_text
+from hermes_jobctl.drift import DesiredState, drift_fields, job_is_paused
+from hermes_jobctl.spec import parse_task_text
 
 
 def sample_job():
