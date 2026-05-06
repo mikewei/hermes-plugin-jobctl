@@ -51,19 +51,26 @@ pip install -e '.[dev]'   # editable + dev deps
 
 ### Hermes plugin registration
 
-`hermes-jobctl` supports two plugin-loading paths for `hermes jobctl ...`:
+> Note: there is currently an upstream bug in Hermes CLI plugin command registration (`register_cli_command` wiring). See [NousResearch/hermes-agent#13643](https://github.com/NousResearch/hermes-agent/pull/13643).  
+> Until the official fix lands, prefer the standalone `hermes-jobctl` CLI path for reliable usage.
 
-1. **Python entry point** (default when installed via `pip` / `uv`)
-   - Declared under `hermes_agent.plugins` as `jobctl = "hermes_jobctl.plugin"`.
-2. **Directory plugin loading**
-   - Copy the `hermes_jobctl/` directory directly into your Hermes `plugins` directory.
-   - The package root exports `register`, so Hermes can register the `jobctl` command tree from the copied directory.
+Install this plugin from Hermes registry:
+
+```bash
+hermes plugins install mikewei/hermes-jobctl
+```
+
+Or copy the repo directory to ~/.hermes/plugins manually and enable it.
 
 ---
 
 ## Quick Start
 
-After installation, `hermes-jobctl` must be on your `PATH` (or use `uv run hermes-jobctl` from the project directory).
+Command naming depends on installation method:
+
+- Plugin install uses `hermes jobctl ...`
+- pip/uv install uses `hermes-jobctl ...` (or `uv run hermes-jobctl ...` from the project directory)
+- Due to current upstream CLI plugin registration issues, `hermes-jobctl ...` is the recommended path before upstream fix is merged.
 
 ```bash
 # Scaffold a spec next to cwd
