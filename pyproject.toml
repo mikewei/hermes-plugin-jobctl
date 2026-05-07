@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 packages = ["hermes_jobctl"]
 
 [tool.hatch.build.targets.wheel.force-include]
-"plugin.yaml" = "plugin.yaml"
+"hermes_jobctl/plugin.yaml" = "plugin.yaml"
 
 [project]
 name = "hermes-jobctl"
@@ -25,5 +25,11 @@ dev = ["pytest>=7"]
 [project.scripts]
 hermes-jobctl = "hermes_jobctl.cli:main"
 
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "--disable-plugin-autoload"

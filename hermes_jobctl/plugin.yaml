@@ -4,4 +4,3 @@ description: Manage Hermes cron jobs with Markdown spec files (like kubectl).
 author: hermes-jobctl
 provides_cli_commands:
   - jobctl
-
