@@ -12,6 +12,7 @@ Declarative Hermes cron jobs from Markdown files: YAML **front matter** for meta
 
 > Note: there is currently an upstream bug in Hermes CLI plugin command registration (`register_cli_command` wiring). See [NousResearch/hermes-agent#13643](https://github.com/NousResearch/hermes-agent/pull/13643).  
 > Until the official fix lands, prefer the standalone `hermes-jobctl` CLI for reliable usage. See [mikewei/hermes-jobctl](https://github.com/mikewei/hermes-jobctl).
+> For now if you really want to use it by plugin, just prompt `fix hermes-agent issue #13643 for me` in your hermes chat.
 
 Install this plugin from Hermes registry:
 
