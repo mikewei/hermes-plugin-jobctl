@@ -1,4 +1,4 @@
-# hermes plugin: jobctl
+# Hermes plugin: jobctl
 
 Declarative Hermes cron jobs from Markdown files: YAML **front matter** for metadata and a Markdown **body** as the Hermes agent prompt—think apply/delete/status for cron specs.
 
@@ -11,7 +11,8 @@ Declarative Hermes cron jobs from Markdown files: YAML **front matter** for meta
 ## Installation
 
 > Note: there is currently an upstream bug in Hermes CLI plugin command registration (`register_cli_command` wiring). See [NousResearch/hermes-agent#13643](https://github.com/NousResearch/hermes-agent/pull/13643).  
-> Until the official fix lands, prefer the standalone `hermes-jobctl` CLI path for reliable usage.
+> Until the official fix lands, prefer the standalone [`hermes-jobctl` CLI](https:/
+/github.com/mikewei/hermes-jobctl) for reliable usage.
 
 Install this plugin from Hermes registry:
 
